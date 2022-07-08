@@ -28,6 +28,7 @@ public class RidingUtils
 
     public RidingUtils()
     {
+        //test
         // Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
 
