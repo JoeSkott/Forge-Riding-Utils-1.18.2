@@ -1,6 +1,7 @@
 package com.joeskott.ridingutils.item;
 
 import com.joeskott.ridingutils.RidingUtils;
+import com.joeskott.ridingutils.item.custom.RidingWhipItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -15,7 +16,7 @@ public class ModItems {
 
     // REGISTER ITEMS
     public static final RegistryObject<Item> RIDING_WHIP = ITEMS.register("riding_whip",
-            () -> new Item(new Item.Properties().tab(CreativeModeTab.TAB_TRANSPORTATION)));
+            () -> new RidingWhipItem(new Item.Properties().tab(CreativeModeTab.TAB_TRANSPORTATION).durability(32)));
 
 
     public static void register(IEventBus eventBus) {
