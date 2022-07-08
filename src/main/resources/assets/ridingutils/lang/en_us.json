@@ -2,5 +2,7 @@
   "item.ridingutils.riding_whip": "§6Magic Riding Whip§r",
 
   "tooltip.ridingutils.riding_whip.tooltip.shift": "§bRight Click while riding a mob to get a speed boost! \nGenerally causes no harm/side effects to your mount unless it has low durability. It's recommended that you repair regularly! \n(Use Lapis to Repair)§r",
-  "tooltip.ridingutils.riding_whip.tooltip": "Press §bSHIFT§r for more info"
+  "tooltip.ridingutils.riding_whip.tooltip": "Press §bSHIFT§r for more info",
+
+  "sounds.ridingutils.riding_whip_active": "Used Riding Whip"
 }

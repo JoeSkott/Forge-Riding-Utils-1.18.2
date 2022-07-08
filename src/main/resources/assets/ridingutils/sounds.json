@@ -1,0 +1,8 @@
+{
+  "riding_whip_active": {
+    "subtitle": "sounds.ridingutils.riding_whip_active",
+    "sounds": [
+      "ridingutils:riding_whip_active"
+    ]
+  }
+}

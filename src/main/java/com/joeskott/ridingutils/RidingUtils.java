@@ -1,6 +1,7 @@
 package com.joeskott.ridingutils;
 
 import com.joeskott.ridingutils.item.ModItems;
+import com.joeskott.ridingutils.sound.ModSounds;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -33,6 +34,7 @@ public class RidingUtils
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         ModItems.register(eventBus);
+        ModSounds.register(eventBus);
 
 
 
