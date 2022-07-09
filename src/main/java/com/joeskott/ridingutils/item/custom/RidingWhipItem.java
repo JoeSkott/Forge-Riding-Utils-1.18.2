@@ -53,7 +53,6 @@ public class RidingWhipItem extends Item {
         offhandIsReins = itemOffhand.is(ModItems.REINS.get());
 
         Entity playerMount = player.getVehicle();
-        //boolean isHorse = playerMount instanceof Horse;
 
         int maxDamage = itemSelf.getMaxDamage();
         int currentDamage = itemSelf.getDamageValue();
@@ -69,10 +68,7 @@ public class RidingWhipItem extends Item {
             addWaterMotion(playerMount);
         } else if(offhandIsReins && RidingUtilsCommonConfigs.reinsNegateFallDamage.get()) {
             playerMount.resetFallDistance();
-            //System.out.println("Negated horse fall damage");
         }
-
-
 
         if(!level.isClientSide()) { //Are we on server?
             if(isOnGround == true) {
@@ -81,17 +77,16 @@ public class RidingWhipItem extends Item {
                 damageItem(player, itemSelf, damageOnUse);
                 rollForHPDamage(player, playerMount, chanceRange, currentDamage, maxDamage);
             }
-        }
 
-        if(ejectPlayer == true && RidingUtilsCommonConfigs.ridingWhipBuck.get() == true) {
-            // Called if bad stuff happened oops
-            playerMount.ejectPassengers();
-            buckPlayer(player, playerMount);
-            ejectPlayer = false;
-        } else if(ejectPlayer == true) {
-            ejectPlayer = false;
+            if(ejectPlayer == true && RidingUtilsCommonConfigs.ridingWhipBuck.get() == true) {
+                // Called if bad stuff happened oops
+                playerMount.ejectPassengers();
+                buckPlayer(player, playerMount);
+                ejectPlayer = false;
+            } else if(ejectPlayer == true) {
+                ejectPlayer = false;
+            }
         }
-
 
         return super.use(level, player, usedHand);
     }
@@ -128,13 +123,9 @@ public class RidingWhipItem extends Item {
 
     private void buckPlayer(Player player, Entity playerMount) {
         if(player.isPassenger()) {
-            //System.out.println("Error: Player is still passenger!");
             return;
         }
-        Vec3 lookAngle = playerMount.getLookAngle();
-        Vec3 lastMotion = playerMount.getDeltaMovement();
-        Vec3 newMotion = new Vec3(lastMotion.x + lookAngle.x, lastMotion.y + 0.5f, lastMotion.z + lookAngle.z);
-        playerMount.setDeltaMovement(newMotion);
+        player.stopFallFlying();
     }
 
 
@@ -143,7 +134,6 @@ public class RidingWhipItem extends Item {
             return;
         }
         Vec3 lookAngle = playerMount.getLookAngle();
-        //Vec3 lastMotion = playerMount.getDeltaMovement();
         Vec3 newMotion = new Vec3(lookAngle.x / 3, 0.05f, lookAngle.z / 3);
         playerMount.setDeltaMovement(newMotion);
     }
@@ -153,20 +143,9 @@ public class RidingWhipItem extends Item {
         if(playerMount instanceof LivingEntity) {
             LivingEntity livingEntity = ((LivingEntity) playerMount);
             MobEffectInstance speedEffect = new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, amplifier, false, false, false);
-
             livingEntity.addEffect(speedEffect);
         }
     }
-
-    private void removeSpeed(Entity playerMount) {
-        if(playerMount instanceof LivingEntity) {
-            LivingEntity livingEntity = ((LivingEntity) playerMount);
-            if (livingEntity.hasEffect(MobEffects.MOVEMENT_SPEED)) {
-                livingEntity.removeEffect(MobEffects.MOVEMENT_SPEED);
-            }
-        }
-    }
-
 
     private void rollForHPDamage(Player player, Entity playerMount, int chanceRange, int currentDamage, int maxDamage) {
         int roll = random.nextInt(chanceRange);
@@ -181,14 +160,11 @@ public class RidingWhipItem extends Item {
         }
     }
 
-
-
     private void doRealDamageAndSideEffects(Player player, Entity playerMount) {
         ejectPlayer = random.nextBoolean();
         float hurtAmount = random.nextFloat(2.0f);
         doHurt(playerMount, hurtAmount);
     }
-
 
     private void doHurt(Entity playerMount, float hurtAmount) {
         if(!playerMount.isOnGround()) {
@@ -197,11 +173,10 @@ public class RidingWhipItem extends Item {
         if(playerMount instanceof LivingEntity) {
             LivingEntity livingEntity = ((LivingEntity) playerMount);
             boolean isHorse = playerMount instanceof Horse;
-            boolean conditionA = hurtAmount > 0 || !isHorse;
-            boolean conditionB = RidingUtilsCommonConfigs.ridingWhipAnimDamage.get();
+            boolean showDamage = RidingUtilsCommonConfigs.ridingWhipAnimDamage.get();
 
-            if (conditionA) {
-                if(hurtAmount < 1.0f && !conditionB) {
+            if (hurtAmount > 0 || !isHorse) {
+                if(hurtAmount < 1.0f && !showDamage) {
                     return;
                 }
                 livingEntity.hurt(DamageSource.GENERIC, hurtAmount);
@@ -228,8 +203,6 @@ public class RidingWhipItem extends Item {
             }
         }
     }
-
-
 
 
     @Override

@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.FlyingMob;
@@ -34,9 +35,13 @@ public class ReinsItem extends Item {
         super(pProperties);
     }
     Random random = new Random();
-    int damageOnUse = 1;
+
     boolean cancelMotion = false;
     double jumpHeight = RidingUtilsCommonConfigs.reinsJumpHeight.get();
+
+    int damageOnUse = 1;
+
+    float speedEffectMultiplier = 2.0f;
 
 
     @Override
@@ -141,6 +146,7 @@ public class ReinsItem extends Item {
         }
 
         Vec3 newMotion = new Vec3(lastMotion.x + (lookAngle.x/2), lastMotion.y, lastMotion.z + (lookAngle.z/2));
+        Vec3 newFastMotion = new Vec3(lastMotion.x + (lookAngle.x * speedEffectMultiplier), lastMotion.y, lastMotion.z + (lookAngle.z * speedEffectMultiplier));
         Vec3 newJumpMotion = new Vec3(lookAngle.x/4, lastMotion.y, lookAngle.z/4);
         Vec3 newFlightMotion = new Vec3(lastMotion.x + (lookAngle.x * 1.5f), lastMotion.y + (lookAngle.y * 1.5f), lastMotion.z + (lookAngle.z * 2f));
 
@@ -151,7 +157,11 @@ public class ReinsItem extends Item {
         } else if (!playerMount.isOnGround()) {
             playerMount.setDeltaMovement(newJumpMotion);
         } else {
-            playerMount.setDeltaMovement(newMotion);
+            if(hasBeenSpedUp(playerMount)) {
+                playerMount.setDeltaMovement(newFastMotion);
+            } else {
+                playerMount.setDeltaMovement(newMotion);
+            }
         }
     }
 
@@ -219,6 +229,18 @@ public class ReinsItem extends Item {
 
         return blockState.getMaterial().isSolid();
     }
+
+    private boolean hasBeenSpedUp(Entity entity) {
+        if(entity instanceof LivingEntity) {
+            LivingEntity livingEntity = (LivingEntity) entity;
+            if(livingEntity.hasEffect(MobEffects.MOVEMENT_SPEED)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     private void removeAggressionFromEntity(Entity entity) {
         LivingEntity livingEntity = (LivingEntity) entity;

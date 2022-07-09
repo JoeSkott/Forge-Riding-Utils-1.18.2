@@ -33,11 +33,11 @@ public class RidingUtilsCommonConfigs {
         reinsClimbWalls = BUILDER.comment("Setting this to true will allow all mobs to climb walls instead of jumping while using the reins! (Defaults to true)")
                 .define("Reins Climb Walls", true);
 
-        ridingWhipDurability = BUILDER.comment("How much durability does the riding whip have? (Defaults to 256)")
-                .defineInRange("Riding Whip Durability", 256, 1, 2048);
+        ridingWhipDurability = BUILDER.comment("How much durability does the riding whip have? (Defaults to 64)")
+                .defineInRange("Riding Whip Durability", 64, 1, 2048);
 
-        ridingWhipCooldownTicks = BUILDER.comment("How many ticks before the riding whip can be used again? (Defaults to 40 or 2 seconds)")
-                .defineInRange("Riding Whip Cooldown", 40, 1, 99999999);
+        ridingWhipCooldownTicks = BUILDER.comment("How many ticks before the riding whip can be used again? (Defaults to 80 or 4 seconds)")
+                .defineInRange("Riding Whip Cooldown", 80, 1, 99999999);
 
         ridingWhipAnimDamage = BUILDER.comment("Does the riding whip occasionally cause faux damage even when repaired? (Defaults to false)")
                 .define("Riding Whip Fake Damage", false);
@@ -45,8 +45,8 @@ public class RidingUtilsCommonConfigs {
         ridingWhipBuck = BUILDER.comment("Does the riding whip have a chance to buck off the rider when at low durability? (Defaults to true)")
                 .define("Riding Whip Buck Chance", true);
 
-        ridingWhipDangerStart = BUILDER.comment("When does the risk of side effects begin (at what damage value, higher = lower durability)? (Defaults to 128)")
-                .defineInRange("Riding Whip Buck Danger", 128, 1, 2048);
+        ridingWhipDangerStart = BUILDER.comment("When does the risk of side effects begin (at what damage value, higher number = lower durability)? (Defaults to 32)")
+                .defineInRange("Riding Whip Buck Danger", 32, 1, 2048);
 
 
 
