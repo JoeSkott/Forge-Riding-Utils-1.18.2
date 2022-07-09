@@ -9,6 +9,7 @@ public class RidingUtilsCommonConfigs {
     public static final ForgeConfigSpec.ConfigValue<Boolean> reinsNegateFallDamage;
     public static final ForgeConfigSpec.ConfigValue<Integer> reinsDurability;
     public static final ForgeConfigSpec.DoubleValue reinsJumpHeight;
+    public static final ForgeConfigSpec.ConfigValue<Boolean> reinsClimbWalls;
     public static final ForgeConfigSpec.ConfigValue<Integer> ridingWhipDurability;
     public static final ForgeConfigSpec.ConfigValue<Integer> ridingWhipCooldownTicks;
     public static final ForgeConfigSpec.ConfigValue<Boolean> ridingWhipAnimDamage;
@@ -28,6 +29,9 @@ public class RidingUtilsCommonConfigs {
 
         reinsJumpHeight = BUILDER.comment("How high do mobs jump when using reins? (Defaults to 0.5)")
                 .defineInRange("Reins Jump Height", 0.5d, 0.1d, 2.0d);
+
+        reinsClimbWalls = BUILDER.comment("Setting this to true will allow all mobs to climb walls instead of jumping while using the reins! (Defaults to true)")
+                .define("Reins Climb Walls", true);
 
         ridingWhipDurability = BUILDER.comment("How much durability does the riding whip have? (Defaults to 256)")
                 .defineInRange("Riding Whip Durability", 256, 1, 2048);

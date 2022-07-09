@@ -2,12 +2,10 @@ package com.joeskott.ridingutils.item.custom;
 
 import com.joeskott.ridingutils.config.RidingUtilsCommonConfigs;
 import com.joeskott.ridingutils.item.ModItems;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -16,8 +14,9 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.horse.Horse;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -36,13 +35,7 @@ public class ReinsItem extends Item {
     }
     Random random = new Random();
     int damageOnUse = 1;
-
-    boolean jumping = false;
-
-    boolean isHorse = false;
-
     boolean cancelMotion = false;
-
     double jumpHeight = RidingUtilsCommonConfigs.reinsJumpHeight.get();
 
 
@@ -65,46 +58,25 @@ public class ReinsItem extends Item {
             cancelMotion = false;
         }
 
-
-
-        if(playerMount instanceof Horse) {
-            isHorse = true;
-        } else {
-            isHorse = false;
-        }
-
-        if(isHorse) { // Don't run code if this is a horse, but still negate fall damage
+        if(playerMount instanceof Horse) { // Don't run code if this is a horse, but still negate fall damage
             if(RidingUtilsCommonConfigs.reinsNegateFallDamage.get()) {
                 playerMount.resetFallDistance();
             }
             return super.use(level, player, usedHand);
         }
 
-
         if(!level.isClientSide()) {
             if(random.nextInt(10) == 0) {
                 damageItem(player, itemSelf, damageOnUse);
                 playerMount.playSound(SoundEvents.LEASH_KNOT_BREAK, 0.2f, getVariablePitch(0.5f));
             }
-            if(getBlockCollision(playerMount)) {
-                jumping = true;
-            }
         }
 
         if(playerMount.isInWater()) {
             addWaterMotion(player, playerMount);
-        } else if (!jumping) {
-            addMotion(player, playerMount);
         } else {
-            jumping = false;
-            addJumpMotion(player, playerMount);
+            addMotion(player, playerMount);
         }
-
-        //LivingEntity mount = (LivingEntity) playerMount;
-        //if(mount instanceof Enemy) {
-        //    mount.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(0.0D);
-        //}
-
 
         return super.use(level, player, usedHand);
     }
@@ -125,7 +97,6 @@ public class ReinsItem extends Item {
                 }
                 if(isAdult) {
                     player.startRiding(interactionTarget);
-                    //tame(player, interactionTarget); //testing
                     interactionTarget.playSound(SoundEvents.PIG_SADDLE, 1.0f, 1.0f);
 
                 }
@@ -155,69 +126,57 @@ public class ReinsItem extends Item {
             return;
         }
 
-        boolean offGroundCheck = (!playerMount.isOnGround() || playerMount.isInWater());
-        boolean flightCheck = (playerMount instanceof FlyingMob);
-        if(offGroundCheck && !flightCheck) {
-            return;
+        if(getBlockCollision(playerMount)) {
+            addJumpMotion(player, playerMount);
         }
+
         Vec3 lookAngle = player.getLookAngle();
         Vec3 lastMotion = playerMount.getDeltaMovement();
-        Vec3 newMotion = new Vec3(lastMotion.x + (lookAngle.x/2), 0.0f, lastMotion.z + (lookAngle.z/2));
 
-        Vec3 newFlightMotion = new Vec3(lastMotion.x + (lookAngle.x * 2f), lastMotion.y + (lookAngle.y * 2f), lastMotion.z + (lookAngle.z * 2f));
-
-
-
-        if(flightCheck) {
-            setLookAngleXAndY(playerMount, player);
-            playerMount.setDeltaMovement(newFlightMotion);
-        } else {
-            setLookAngle(playerMount, player);
-            playerMount.setDeltaMovement(newMotion);
+        boolean offGroundCheck = !playerMount.isOnGround() && lastMotion.y < -0.1f;
+        boolean inWaterCheck = playerMount.isInWater();
+        boolean flightCheck = (playerMount instanceof FlyingMob);
+        if((offGroundCheck || inWaterCheck) && !flightCheck) {
+            return;
         }
 
+        Vec3 newMotion = new Vec3(lastMotion.x + (lookAngle.x/2), lastMotion.y, lastMotion.z + (lookAngle.z/2));
+        Vec3 newJumpMotion = new Vec3(lookAngle.x/4, lastMotion.y, lookAngle.z/4);
+        Vec3 newFlightMotion = new Vec3(lastMotion.x + (lookAngle.x * 1.5f), lastMotion.y + (lookAngle.y * 1.5f), lastMotion.z + (lookAngle.z * 2f));
 
+        setLookAngle(playerMount, player);
+
+        if(flightCheck) {
+            playerMount.setDeltaMovement(newFlightMotion);
+        } else if (!playerMount.isOnGround()) {
+            playerMount.setDeltaMovement(newJumpMotion);
+        } else {
+            playerMount.setDeltaMovement(newMotion);
+        }
     }
 
     private void addJumpMotion(Player player, Entity playerMount) {
-        if(cancelMotion) {
+        // Method must be executed inside addMotion
+        if(!playerMount.isOnGround() || getBlockCeilingCollision(player)) {
             return;
+        }
+
+        if(RidingUtilsCommonConfigs.reinsNegateFallDamage.get() == true) {
+            playerMount.resetFallDistance();
         }
 
         Vec3 lastMotion = playerMount.getDeltaMovement();
-        Vec3 lookAngle = playerMount.getLookAngle();
+        //Vec3 lookAngle = playerMount.getLookAngle();
         setLookAngle(playerMount, player);
 
-        if(!playerMount.isOnGround()) {
-            Vec3 adjustedMotion = new Vec3(lookAngle.x, lastMotion.y + 0.1f, lookAngle.z);
-            playerMount.setDeltaMovement(adjustedMotion);
-
-            if(RidingUtilsCommonConfigs.reinsNegateFallDamage.get() == true) {
-                playerMount.resetFallDistance();
-            }
-
-            return;
-        }
-
-
-
-        Vec3 newMotion = new Vec3(lastMotion.x + lookAngle.x, jumpHeight, lastMotion.z + lookAngle.z);
+        Vec3 newMotion = new Vec3(lastMotion.x, jumpHeight, lastMotion.z);
         playerMount.setDeltaMovement(newMotion);
-
-
     }
 
     private void setLookAngle(Entity entity, Player player) {
         float xRot = player.getXRot();
         float yRot = player.getYRot();
         //entity.setXRot(xRot);
-        entity.setYRot(yRot);
-    }
-
-    private void setLookAngleXAndY(Entity entity, Player player) {
-        float xRot = player.getXRot();
-        float yRot = player.getYRot();
-        entity.setXRot(xRot);
         entity.setYRot(yRot);
     }
 
@@ -243,23 +202,31 @@ public class ReinsItem extends Item {
     private boolean getBlockCollision(Entity playerMount) {
         Vec3 lookAngle = playerMount.getLookAngle();
         Vec3 position = new Vec3(playerMount.getX(), playerMount.getY(), playerMount.getZ());
-        double angleX = lookAngle.x * 2.5;
-        double angleZ = lookAngle.z * 2.5;
+        double angleX = lookAngle.x * 1.0f;
+        double angleZ = lookAngle.z * 1.0f;
+        double offsetY = 0.1f;
 
-        BlockPos collidePos = new BlockPos(angleX + position.x, position.y, angleZ + position.z);
+        BlockPos collidePos = new BlockPos(angleX + position.x, position.y + offsetY, angleZ + position.z);
         BlockState blockState = playerMount.level.getBlockState(collidePos);
 
-        boolean collision = blockState.getMaterial().isSolid();
-        return collision;
+        return blockState.getMaterial().isSolid();
     }
 
-    public void tame(Player player, Entity entity) {
-        //entity.setTame(true);
-        //entity.setOwnerUUID(pPlayer.getUUID());
-        if(player instanceof  ServerPlayer) {
-            CriteriaTriggers.TAME_ANIMAL.trigger((ServerPlayer)player, (Animal) entity);
+
+    private boolean getBlockCeilingCollision(Entity entity) {
+        BlockPos collidePos = entity.blockPosition().above();
+        BlockState blockState = entity.level.getBlockState(collidePos);
+
+        return blockState.getMaterial().isSolid();
+    }
+
+    private void removeAggressionFromEntity(Entity entity) {
+        LivingEntity livingEntity = (LivingEntity) entity;
+        if(livingEntity instanceof Enemy) {
+            livingEntity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(0.0d);
         }
     }
+
 
     @Override
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
