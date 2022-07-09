@@ -41,7 +41,7 @@ public class ReinsItem extends Item {
 
     int damageOnUse = 1;
 
-    float speedEffectMultiplier = 2.0f;
+    double speedEffectMultiplier = RidingUtilsCommonConfigs.reinsRidingWhipSpeedBoost.get();
 
 
     @Override
@@ -243,6 +243,10 @@ public class ReinsItem extends Item {
 
 
     private void removeAggressionFromEntity(Entity entity) {
+        if(!(entity instanceof LivingEntity)) {
+            return;
+        }
+
         LivingEntity livingEntity = (LivingEntity) entity;
         if(livingEntity instanceof Enemy) {
             livingEntity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(0.0d);

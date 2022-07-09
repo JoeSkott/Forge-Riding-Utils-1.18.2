@@ -5,11 +5,11 @@ import net.minecraftforge.common.ForgeConfigSpec;
 public class RidingUtilsCommonConfigs {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final ForgeConfigSpec SPEC;
-
     public static final ForgeConfigSpec.ConfigValue<Boolean> reinsNegateFallDamage;
     public static final ForgeConfigSpec.ConfigValue<Integer> reinsDurability;
     public static final ForgeConfigSpec.DoubleValue reinsJumpHeight;
-    public static final ForgeConfigSpec.ConfigValue<Boolean> reinsClimbWalls;
+
+    public static final ForgeConfigSpec.DoubleValue reinsRidingWhipSpeedBoost;
     public static final ForgeConfigSpec.ConfigValue<Integer> ridingWhipDurability;
     public static final ForgeConfigSpec.ConfigValue<Integer> ridingWhipCooldownTicks;
     public static final ForgeConfigSpec.ConfigValue<Boolean> ridingWhipAnimDamage;
@@ -30,23 +30,23 @@ public class RidingUtilsCommonConfigs {
         reinsJumpHeight = BUILDER.comment("How high do mobs jump when using reins? (Defaults to 0.5)")
                 .defineInRange("Reins Jump Height", 0.5d, 0.1d, 2.0d);
 
-        reinsClimbWalls = BUILDER.comment("Setting this to true will allow all mobs to climb walls instead of jumping while using the reins! (Defaults to true)")
-                .define("Reins Climb Walls", true);
+        reinsRidingWhipSpeedBoost = BUILDER.comment("Speed multiplier for when mobs are using reins and use the riding crop (Defaults to 2.0)")
+                .defineInRange("Reins Whip Speed Boost", 2.0d, 0.1d, 3.0d);
 
-        ridingWhipDurability = BUILDER.comment("How much durability does the riding whip have? (Defaults to 64)")
-                .defineInRange("Riding Whip Durability", 64, 1, 2048);
+        ridingWhipDurability = BUILDER.comment("How much durability does the riding crop have? (Defaults to 64)")
+                .defineInRange("Riding Crop Durability", 64, 1, 2048);
 
-        ridingWhipCooldownTicks = BUILDER.comment("How many ticks before the riding whip can be used again? (Defaults to 80 or 4 seconds)")
-                .defineInRange("Riding Whip Cooldown", 80, 1, 99999999);
+        ridingWhipCooldownTicks = BUILDER.comment("How many ticks before the riding crop can be used again? (Defaults to 80 or 4 seconds)")
+                .defineInRange("Riding Crop Cooldown", 80, 1, 99999999);
 
-        ridingWhipAnimDamage = BUILDER.comment("Does the riding whip occasionally cause faux damage even when repaired? (Defaults to false)")
-                .define("Riding Whip Fake Damage", false);
+        ridingWhipAnimDamage = BUILDER.comment("Does the riding crop occasionally cause faux damage even when repaired? (Defaults to false)")
+                .define("Riding Crop Fake Damage", false);
 
-        ridingWhipBuck = BUILDER.comment("Does the riding whip have a chance to buck off the rider when at low durability? (Defaults to true)")
-                .define("Riding Whip Buck Chance", true);
+        ridingWhipBuck = BUILDER.comment("Does the riding crop have a chance to buck off the rider when at low durability? (Defaults to true)")
+                .define("Riding Crop Buck Chance", true);
 
         ridingWhipDangerStart = BUILDER.comment("When does the risk of side effects begin (at what damage value, higher number = lower durability)? (Defaults to 32)")
-                .defineInRange("Riding Whip Buck Danger", 32, 1, 2048);
+                .defineInRange("Riding Crop Buck Danger", 32, 1, 2048);
 
 
 
