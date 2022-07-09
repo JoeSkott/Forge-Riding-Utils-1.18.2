@@ -120,7 +120,7 @@ public class RidingWhipItem extends Item {
         }
         Vec3 lookAngle = playerMount.getLookAngle();
         Vec3 lastMotion = playerMount.getDeltaMovement();
-        Vec3 newMotion = new Vec3(lastMotion.x + lookAngle.x, lastMotion.y + 2.0f, lastMotion.z + lookAngle.z);
+        Vec3 newMotion = new Vec3(lastMotion.x + lookAngle.x, lastMotion.y + 0.5f, lastMotion.z + lookAngle.z);
         playerMount.setDeltaMovement(newMotion);
     }
 
