@@ -43,6 +43,8 @@ public class ReinsItem extends Item {
 
     boolean cancelMotion = false;
 
+    double jumpHeight = RidingUtilsCommonConfigs.reinsJumpHeight.get();
+
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
@@ -198,7 +200,8 @@ public class ReinsItem extends Item {
         }
 
 
-        Vec3 newMotion = new Vec3(lastMotion.x + lookAngle.x, 0.5f, lastMotion.z + lookAngle.z);
+
+        Vec3 newMotion = new Vec3(lastMotion.x + lookAngle.x, jumpHeight, lastMotion.z + lookAngle.z);
         playerMount.setDeltaMovement(newMotion);
 
 
