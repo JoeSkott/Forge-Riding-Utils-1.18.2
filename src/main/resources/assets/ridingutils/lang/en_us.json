@@ -1,9 +1,12 @@
 {
-  "item.ridingutils.riding_whip": "§6Magic Riding Whip§r",
-  "item.ridingutils.reins": "§6Reins§r",
+  "item.ridingutils.riding_whip": "§6Riding Crop§r",
+  "item.ridingutils.reins": "§eReins§r",
 
-  "tooltip.ridingutils.riding_whip.tooltip.shift": "§bRight Click while riding a mob to get a speed boost! \nGenerally causes no harm/side effects to your mount unless it has low durability. It's recommended that you repair regularly! \n(Use Lapis to Repair)§r",
+  "tooltip.ridingutils.riding_whip.tooltip.shift": "§bRight Click while riding for a temporary speed boost. Won't harm mounts until durability is low. Hold Right Click in the water and your mount will swim with you riding!§r",
   "tooltip.ridingutils.riding_whip.tooltip": "Press §bSHIFT§r for more info",
+
+  "tooltip.ridingutils.reins.tooltip.shift": "§bRight Click any mob (well, most mobs) to ride. Hold Right Click while riding to move in that direction. Works on flying mobs! Mounts will swim with you riding!§r",
+  "tooltip.ridingutils.reins.tooltip": "Press §bSHIFT§r for more info",
 
   "sounds.ridingutils.riding_whip_active": "Used Riding Whip"
 }

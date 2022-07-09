@@ -1,6 +1,7 @@
 package com.joeskott.ridingutils.item;
 
 import com.joeskott.ridingutils.RidingUtils;
+import com.joeskott.ridingutils.config.RidingUtilsCommonConfigs;
 import com.joeskott.ridingutils.item.custom.ReinsItem;
 import com.joeskott.ridingutils.item.custom.RidingWhipItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -16,11 +17,13 @@ public class ModItems {
 
 
     // REGISTER ITEMS
+    static int ridingWhipDurability = RidingUtilsCommonConfigs.ridingWhipDurability.get();
     public static final RegistryObject<Item> RIDING_WHIP = ITEMS.register("riding_whip",
-            () -> new RidingWhipItem(new Item.Properties().tab(CreativeModeTab.TAB_TRANSPORTATION).durability(256)));
+            () -> new RidingWhipItem(new Item.Properties().tab(CreativeModeTab.TAB_TRANSPORTATION).durability(ridingWhipDurability)));
 
+    static int reinsDurability = RidingUtilsCommonConfigs.reinsDurability.get();
     public static final RegistryObject<Item> REINS = ITEMS.register("reins",
-            () -> new ReinsItem(new Item.Properties().tab(CreativeModeTab.TAB_TRANSPORTATION).durability(64)));
+            () -> new ReinsItem(new Item.Properties().tab(CreativeModeTab.TAB_TRANSPORTATION).durability(reinsDurability)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

@@ -1,8 +1,12 @@
 package com.joeskott.ridingutils.item.custom;
 
-import com.joeskott.ridingutils.sound.ModSounds;
+import com.joeskott.ridingutils.config.RidingUtilsCommonConfigs;
+import com.joeskott.ridingutils.item.ModItems;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -12,18 +16,18 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.extensions.IForgeBlockState;
-import org.lwjgl.system.CallbackI;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Random;
 
 public class ReinsItem extends Item {
@@ -35,6 +39,10 @@ public class ReinsItem extends Item {
 
     boolean jumping = false;
 
+    boolean isHorse = false;
+
+    boolean cancelMotion = false;
+
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
@@ -44,11 +52,34 @@ public class ReinsItem extends Item {
 
         Entity playerMount = player.getVehicle();
         ItemStack itemSelf = player.getItemInHand(usedHand);
+        ItemStack itemOffhand = player.getOffhandItem();
+
+        boolean offhandIsWhip = itemOffhand.is(ModItems.RIDING_WHIP.get());
+        boolean offhandIsSelf = itemOffhand.is(this);
+
+        if(!itemSelf.is(ModItems.REINS.get()) || offhandIsWhip || offhandIsSelf) {
+            cancelMotion = true;
+        } else {
+            cancelMotion = false;
+        }
+
+
+
+        if(playerMount instanceof Horse) {
+            isHorse = true;
+        } else {
+            isHorse = false;
+        }
+
+        if(isHorse) { // Don't run code if this is a horse, but still negate fall damage
+            if(RidingUtilsCommonConfigs.reinsNegateFallDamage.get()) {
+                playerMount.resetFallDistance();
+            }
+            return super.use(level, player, usedHand);
+        }
 
 
         if(!level.isClientSide()) {
-
-            //
             if(random.nextInt(10) == 0) {
                 damageItem(player, itemSelf, damageOnUse);
                 playerMount.playSound(SoundEvents.LEASH_KNOT_BREAK, 0.2f, getVariablePitch(0.5f));
@@ -67,7 +98,7 @@ public class ReinsItem extends Item {
             addJumpMotion(player, playerMount);
         }
 
-        LivingEntity mount = (LivingEntity) playerMount;
+        //LivingEntity mount = (LivingEntity) playerMount;
         //if(mount instanceof Enemy) {
         //    mount.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(0.0D);
         //}
@@ -108,6 +139,9 @@ public class ReinsItem extends Item {
     }
 
     private void damageItem(Player player, ItemStack item, int damageAmount) {
+        if(cancelMotion) {
+            return;
+        }
         item.hurtAndBreak(
                 damageAmount,
                 player,
@@ -115,6 +149,9 @@ public class ReinsItem extends Item {
     }
 
     private void addMotion(Player player, Entity playerMount) {
+        if(cancelMotion) {
+            return;
+        }
 
         boolean offGroundCheck = (!playerMount.isOnGround() || playerMount.isInWater());
         boolean flightCheck = (playerMount instanceof FlyingMob);
@@ -141,6 +178,10 @@ public class ReinsItem extends Item {
     }
 
     private void addJumpMotion(Player player, Entity playerMount) {
+        if(cancelMotion) {
+            return;
+        }
+
         Vec3 lastMotion = playerMount.getDeltaMovement();
         Vec3 lookAngle = playerMount.getLookAngle();
         setLookAngle(playerMount, player);
@@ -148,7 +189,11 @@ public class ReinsItem extends Item {
         if(!playerMount.isOnGround()) {
             Vec3 adjustedMotion = new Vec3(lookAngle.x, lastMotion.y + 0.1f, lookAngle.z);
             playerMount.setDeltaMovement(adjustedMotion);
-            playerMount.resetFallDistance();
+
+            if(RidingUtilsCommonConfigs.reinsNegateFallDamage.get() == true) {
+                playerMount.resetFallDistance();
+            }
+
             return;
         }
 
@@ -174,6 +219,9 @@ public class ReinsItem extends Item {
     }
 
     private void addWaterMotion(Player player, Entity playerMount) {
+        if(cancelMotion) {
+            return;
+        }
 
         boolean offGroundCheck = (!playerMount.isOnGround() && !playerMount.isInWater());
         boolean flightCheck = (playerMount instanceof FlyingMob);
@@ -182,7 +230,8 @@ public class ReinsItem extends Item {
         }
         Vec3 lookAngle = player.getLookAngle();
         Vec3 lastMotion = playerMount.getDeltaMovement();
-        Vec3 newMotion = new Vec3(lastMotion.x + (lookAngle.x/4), 0.2f, lastMotion.z + (lookAngle.z/4));
+
+        Vec3 newMotion = new Vec3(lastMotion.x + (lookAngle.x/4), 0.01f, lastMotion.z + (lookAngle.z/4));
         playerMount.setDeltaMovement(newMotion);
 
         setLookAngle(playerMount, player);
@@ -207,9 +256,14 @@ public class ReinsItem extends Item {
         if(player instanceof  ServerPlayer) {
             CriteriaTriggers.TAME_ANIMAL.trigger((ServerPlayer)player, (Animal) entity);
         }
-
-
-
     }
 
+    @Override
+    public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
+        if(Screen.hasShiftDown()) {
+            pTooltipComponents.add(new TranslatableComponent("tooltip.ridingutils.reins.tooltip.shift"));
+        } else {
+            pTooltipComponents.add(new TranslatableComponent("tooltip.ridingutils.reins.tooltip"));
+        }
+    }
 }

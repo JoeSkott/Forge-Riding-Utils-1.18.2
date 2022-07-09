@@ -29,20 +29,23 @@ displayName="Riding Utils" #mandatory
 # A file name (in the root of the mod JAR) containing a logo for display
 logoFile="examplemod.png" #optional
 # A text field displayed in the mod UI
-credits="Joe Skott made this mod, including all textures and code." #optional
+credits="Mod by Joe Skott." #optional
 # A text field displayed in the mod UI
 authors="Joe Skott" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Riding Utils introduces some items that enhance mounts in the game. Currently it introduces just
-an item called a "Magic Riding Whip" which speeds up any mount, at a cost.
+Riding Utils introduces some items that enhance mounts in the game. Currently it introduces two items:
+A "Riding Whip", and "Reins".
 
 The whip will cause a brief speed up, usually at no real harm to the mount. However, the longer
 the durability of the item goes down, the more likely it is to cause damage and side effects.
 A well maintained item will avoid that, so it's recommended that you repair it!
 
-The whip can be used on land, and also on water. Hold right click while riding a mount in the water
-to move forward at a modest speed. It does not take damage in water! Now you don't need to worry
+The reins will allow you to mount and control any (well almost any) mob. Reins also negate fall damage
+by default.
+
+The whip and reins can be used on land, and also on water. Hold right click while riding a mount in the water
+to move forward at a modest speed. They don't take damage in water! Now you don't need to worry
 about all that hassle of trying to get your mounts to cross the ocean!
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.

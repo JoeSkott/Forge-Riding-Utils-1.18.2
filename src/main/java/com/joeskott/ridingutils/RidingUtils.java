@@ -1,5 +1,7 @@
 package com.joeskott.ridingutils;
 
+import com.joeskott.ridingutils.config.RidingUtilsClientConfigs;
+import com.joeskott.ridingutils.config.RidingUtilsCommonConfigs;
 import com.joeskott.ridingutils.item.ModItems;
 import com.joeskott.ridingutils.sound.ModSounds;
 import com.mojang.logging.LogUtils;
@@ -10,7 +12,9 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
@@ -36,7 +40,8 @@ public class RidingUtils
         ModItems.register(eventBus);
         ModSounds.register(eventBus);
 
-
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, RidingUtilsClientConfigs.SPEC, "ridingutils-client.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, RidingUtilsCommonConfigs.SPEC, "ridingutils-common.toml");
 
 
         eventBus.addListener(this::setup);

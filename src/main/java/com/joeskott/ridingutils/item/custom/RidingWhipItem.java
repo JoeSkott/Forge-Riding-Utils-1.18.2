@@ -1,5 +1,7 @@
 package com.joeskott.ridingutils.item.custom;
 
+import com.joeskott.ridingutils.config.RidingUtilsCommonConfigs;
+import com.joeskott.ridingutils.item.ModItems;
 import com.joeskott.ridingutils.sound.ModSounds;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -27,9 +29,11 @@ import java.util.Random;
 public class RidingWhipItem extends Item {
     Random random = new Random();
 
-    int cooldownTicks = 40;
+    int cooldownTicks = RidingUtilsCommonConfigs.ridingWhipCooldownTicks.get();
     int damageOnUse = 1;
     boolean ejectPlayer = false;
+
+    boolean offhandIsReins = false;
 
     public RidingWhipItem(Properties pProperties) {
         super(pProperties);
@@ -44,6 +48,10 @@ public class RidingWhipItem extends Item {
         }
 
         ItemStack itemSelf = player.getItemInHand(usedHand);
+        ItemStack itemOffhand = player.getOffhandItem();
+
+        offhandIsReins = itemOffhand.is(ModItems.REINS.get());
+
         Entity playerMount = player.getVehicle();
         //boolean isHorse = playerMount instanceof Horse;
 
@@ -59,6 +67,9 @@ public class RidingWhipItem extends Item {
             addMotion(playerMount);
         } else if(isInWater == true) {
             addWaterMotion(playerMount);
+        } else if(offhandIsReins && RidingUtilsCommonConfigs.reinsNegateFallDamage.get()) {
+            playerMount.resetFallDistance();
+            //System.out.println("Negated horse fall damage");
         }
 
 
@@ -72,10 +83,12 @@ public class RidingWhipItem extends Item {
             }
         }
 
-        if(ejectPlayer == true) {
+        if(ejectPlayer == true && RidingUtilsCommonConfigs.ridingWhipBuck.get() == true) {
             // Called if bad stuff happened oops
             playerMount.ejectPassengers();
             buckPlayer(player, playerMount);
+            ejectPlayer = false;
+        } else if(ejectPlayer == true) {
             ejectPlayer = false;
         }
 
@@ -90,7 +103,7 @@ public class RidingWhipItem extends Item {
 
     private float getVariablePitch(float maxVariance) {
         float pitchAdjust = random.nextFloat(maxVariance) - random.nextFloat(maxVariance);
-        float pitch = 1.0f + pitchAdjust;
+        float pitch = 1.2f + pitchAdjust;
         return pitch;
     }
 
@@ -115,7 +128,7 @@ public class RidingWhipItem extends Item {
 
     private void buckPlayer(Player player, Entity playerMount) {
         if(player.isPassenger()) {
-            System.out.println("Error: Player is still passenger!");
+            //System.out.println("Error: Player is still passenger!");
             return;
         }
         Vec3 lookAngle = playerMount.getLookAngle();
@@ -131,7 +144,7 @@ public class RidingWhipItem extends Item {
         }
         Vec3 lookAngle = playerMount.getLookAngle();
         //Vec3 lastMotion = playerMount.getDeltaMovement();
-        Vec3 newMotion = new Vec3(lookAngle.x / 3, 0.1f, lookAngle.z / 3);
+        Vec3 newMotion = new Vec3(lookAngle.x / 3, 0.01f, lookAngle.z / 3);
         playerMount.setDeltaMovement(newMotion);
     }
 
@@ -158,7 +171,9 @@ public class RidingWhipItem extends Item {
     private void rollForHPDamage(Player player, Entity playerMount, int chanceRange, int currentDamage, int maxDamage) {
         int roll = random.nextInt(chanceRange);
 
-        if(currentDamage < maxDamage / 2 || roll != 0) {
+        int damageCheck = RidingUtilsCommonConfigs.ridingWhipDangerStart.get();
+
+        if(currentDamage < damageCheck || roll != 0) {
             doHurt(playerMount, 0.0f);
             addSpeed(playerMount, 2, 120);
         } else {
@@ -182,10 +197,20 @@ public class RidingWhipItem extends Item {
         if(playerMount instanceof LivingEntity) {
             LivingEntity livingEntity = ((LivingEntity) playerMount);
             boolean isHorse = playerMount instanceof Horse;
-            if (hurtAmount > 0 || !isHorse) {
+            boolean conditionA = hurtAmount > 0 || !isHorse;
+            boolean conditionB = RidingUtilsCommonConfigs.ridingWhipAnimDamage.get();
+
+            if (conditionA) {
+                if(hurtAmount < 1.0f && !conditionB) {
+                    return;
+                }
                 livingEntity.hurt(DamageSource.GENERIC, hurtAmount);
             } else if (isHorse) {
-                int choose = random.nextInt(3);
+                int bound = 3;
+                if(!RidingUtilsCommonConfigs.ridingWhipAnimDamage.get()) {
+                    bound = 2;
+                }
+                int choose = random.nextInt(bound);
                 float pitch = getVariablePitch(0.3f);
 
 
@@ -194,10 +219,10 @@ public class RidingWhipItem extends Item {
                         playerMount.playSound(SoundEvents.HORSE_ANGRY, 1.0f, pitch);
                         break;
                     case 1:
-                        playerMount.playSound(SoundEvents.HORSE_HURT, 1.0f, pitch);
+                        playerMount.playSound(SoundEvents.HORSE_BREATHE, 1.0f, pitch);
                         break;
                     case 2:
-                        playerMount.playSound(SoundEvents.HORSE_BREATHE, 1.0f, pitch);
+                        playerMount.playSound(SoundEvents.HORSE_HURT, 1.0f, pitch);
                         break;
                 }
             }
