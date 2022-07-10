@@ -56,7 +56,6 @@ public class RidingUtilsCommonConfigs {
                 .defineInRange("Riding Crop Buck Danger", 32, 1, 2048);
 
 
-
         BUILDER.pop();
         SPEC = BUILDER.build();
 
