@@ -40,8 +40,8 @@ public class RidingUtils
         ModItems.register(eventBus);
         ModSounds.register(eventBus);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, RidingUtilsClientConfigs.SPEC, "ridingutils-client.toml");
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, RidingUtilsCommonConfigs.SPEC, "ridingutils-common.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, RidingUtilsClientConfigs.SPEC, "ridingutilities-client.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, RidingUtilsCommonConfigs.SPEC, "ridingutilities-common.toml");
 
 
         eventBus.addListener(this::setup);

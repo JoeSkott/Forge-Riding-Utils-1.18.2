@@ -20,10 +20,10 @@ public class RidingUtilsCommonConfigs {
         BUILDER.push("Configs for Riding Utilities");
 
         reinsJumpHeight = BUILDER.comment("How high do mobs jump when using reins? (Defaults to 0.5)")
-                .defineInRange("Reins Jump Height", 0.5d, 0.1d, 2.0d);
+                .defineInRange("Reins Jump Height", 0.5, 0.1, 2.0);
 
         reinsRidingWhipSpeedBoost = BUILDER.comment("Speed multiplier for when mobs are using reins and use the riding crop (Defaults to 2.0)")
-                .defineInRange("Reins Whip Speed Boost", 2.0d, 0.1d, 3.0d);
+                .defineInRange("Reins Whip Speed Boost", 2.0, 0.1, 3.0);
 
         ridingWhipDuration = BUILDER.comment("How long does the speed boost last? (Defaults to 140 ticks or 7 seconds)")
                 .defineInRange("Riding Crop Speed Duration", 140, 1, 99999999);
