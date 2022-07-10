@@ -36,10 +36,9 @@ public class ReinsItem extends Item {
     Random random = new Random();
     boolean cancelMotion = false;
     double jumpHeight = RidingUtilsCommonConfigs.reinsJumpHeight.get();
-
+    double speedEffectMultiplier = RidingUtilsCommonConfigs.reinsRidingWhipSpeedBoost.get();
     int damageOnUse = 1;
 
-    double speedEffectMultiplier = RidingUtilsCommonConfigs.reinsRidingWhipSpeedBoost.get();
 
 
     @Override
@@ -47,6 +46,8 @@ public class ReinsItem extends Item {
         if(!player.isPassenger()) {
             return super.use(level, player, usedHand);
         }
+
+        updateValuesFromConfig();
 
         Entity playerMount = player.getVehicle();
         ItemStack itemSelf = player.getItemInHand(usedHand);
@@ -97,6 +98,7 @@ public class ReinsItem extends Item {
                 if(isAdult) {
                     player.startRiding(interactionTarget);
                     interactionTarget.playSound(SoundEvents.PIG_SADDLE, 1.0f, 1.0f);
+                    updateValuesFromConfig();
                 }
             }
         }
@@ -239,6 +241,12 @@ public class ReinsItem extends Item {
         if(livingEntity instanceof Enemy) {
             Objects.requireNonNull(livingEntity.getAttribute(Attributes.ATTACK_DAMAGE)).setBaseValue(0.0d);
         }
+    }
+
+
+    private void updateValuesFromConfig() {
+        jumpHeight = RidingUtilsCommonConfigs.reinsJumpHeight.get();
+        speedEffectMultiplier = RidingUtilsCommonConfigs.reinsRidingWhipSpeedBoost.get();
     }
 
 

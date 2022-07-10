@@ -29,12 +29,11 @@ import java.util.Random;
 
 public class RidingWhipItem extends Item {
     Random random = new Random();
-
+    int damageOnUse = 1;
 
     int cooldownTicks = RidingUtilsCommonConfigs.ridingWhipCooldownTicks.get();
 
     int damageCheck = RidingUtilsCommonConfigs.ridingWhipDangerStart.get();
-    int damageOnUse = 1;
 
     int durationOfEffect = RidingUtilsCommonConfigs.ridingWhipDuration.get();
 
@@ -63,6 +62,8 @@ public class RidingWhipItem extends Item {
         if(player.getVehicle() instanceof Boat) {
             return super.use(level, player, usedHand);
         }
+
+        updateValuesFromConfig();
 
         ItemStack itemSelf = player.getItemInHand(usedHand);
         ItemStack itemOffhand = player.getOffhandItem();
@@ -209,6 +210,20 @@ public class RidingWhipItem extends Item {
                 }
             }
         }
+    }
+
+    private void updateValuesFromConfig() {
+        cooldownTicks = RidingUtilsCommonConfigs.ridingWhipCooldownTicks.get();
+
+        damageCheck = RidingUtilsCommonConfigs.ridingWhipDangerStart.get();
+
+        durationOfEffect = RidingUtilsCommonConfigs.ridingWhipDuration.get();
+
+        buckPlayer = RidingUtilsCommonConfigs.ridingWhipBuck.get();
+
+        showDamage = RidingUtilsCommonConfigs.ridingWhipAnimDamage.get();
+
+        effectAmplifier = RidingUtilsCommonConfigs.ridingWhipControllableSpeedAmplifier.get();
     }
 
 
