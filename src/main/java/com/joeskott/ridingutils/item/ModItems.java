@@ -17,11 +17,11 @@ public class ModItems {
 
 
     // REGISTER ITEMS
-    static int ridingWhipDurability = RidingUtilsCommonConfigs.ridingWhipDurability.get();
+    static int ridingWhipDurability = 64;
     public static final RegistryObject<Item> RIDING_WHIP = ITEMS.register("riding_whip",
             () -> new RidingWhipItem(new Item.Properties().tab(CreativeModeTab.TAB_TRANSPORTATION).durability(ridingWhipDurability)));
 
-    static int reinsDurability = RidingUtilsCommonConfigs.reinsDurability.get();
+    static int reinsDurability = 128;
     public static final RegistryObject<Item> REINS = ITEMS.register("reins",
             () -> new ReinsItem(new Item.Properties().tab(CreativeModeTab.TAB_TRANSPORTATION).durability(reinsDurability)));
 

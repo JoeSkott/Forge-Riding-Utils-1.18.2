@@ -33,9 +33,15 @@ public class RidingWhipItem extends Item {
 
 
     int cooldownTicks = RidingUtilsCommonConfigs.ridingWhipCooldownTicks.get();
+
+    int damageCheck = RidingUtilsCommonConfigs.ridingWhipDangerStart.get();
     int damageOnUse = 1;
 
     int durationOfEffect = RidingUtilsCommonConfigs.ridingWhipDuration.get();
+
+    boolean buckPlayer = RidingUtilsCommonConfigs.ridingWhipBuck.get();
+
+    boolean showDamage = RidingUtilsCommonConfigs.ridingWhipAnimDamage.get();
 
     int effectAmplifier = RidingUtilsCommonConfigs.ridingWhipControllableSpeedAmplifier.get();
 
@@ -80,7 +86,7 @@ public class RidingWhipItem extends Item {
             addMotion(playerMount);
         } else if(isInWater) {
             addWaterMotion(playerMount);
-        } else if(offhandIsReins && RidingUtilsCommonConfigs.reinsNegateFallDamage.get()) {
+        } else if(offhandIsReins) {
             playerMount.resetFallDistance();
         }
 
@@ -92,7 +98,7 @@ public class RidingWhipItem extends Item {
                 rollForHPDamage(player, playerMount, chanceRange, currentDamage, maxDamage);
             }
 
-            if(ejectPlayer && RidingUtilsCommonConfigs.ridingWhipBuck.get()) {
+            if(ejectPlayer && buckPlayer) {
                 // Called if bad stuff happened oops
                 playerMount.ejectPassengers();
                 buckPlayer(player, playerMount);
@@ -163,8 +169,6 @@ public class RidingWhipItem extends Item {
     private void rollForHPDamage(Player player, Entity playerMount, int chanceRange, int currentDamage, int maxDamage) {
         int roll = random.nextInt(chanceRange);
 
-        int damageCheck = RidingUtilsCommonConfigs.ridingWhipDangerStart.get();
-
         if(currentDamage < damageCheck || roll != 0) {
             doHurt(playerMount, 0.0f);
             addSpeed(playerMount, effectAmplifier, durationOfEffect);
@@ -186,7 +190,6 @@ public class RidingWhipItem extends Item {
         if(playerMount instanceof LivingEntity) {
             LivingEntity livingEntity = ((LivingEntity) playerMount);
             boolean isHorse = playerMount instanceof Horse;
-            boolean showDamage = RidingUtilsCommonConfigs.ridingWhipAnimDamage.get();
 
             if (hurtAmount > 0 || !isHorse) {
                 if(hurtAmount < 1.0f && !showDamage) {
@@ -195,7 +198,7 @@ public class RidingWhipItem extends Item {
                 livingEntity.hurt(DamageSource.GENERIC, hurtAmount);
             } else if (isHorse) {
                 int bound = 3;
-                if(!RidingUtilsCommonConfigs.ridingWhipAnimDamage.get()) {
+                if(!showDamage) {
                     bound = 2;
                 }
                 int choose = random.nextInt(bound);

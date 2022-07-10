@@ -61,9 +61,8 @@ public class ReinsItem extends Item {
         cancelMotion = !itemSelf.is(ModItems.REINS.get()) || offhandIsWhip || offhandIsSelf || isBoatEntity || isControllable;
 
         if(playerMount instanceof Horse) { // Don't run code if this is a horse, but still negate fall damage
-            if(RidingUtilsCommonConfigs.reinsNegateFallDamage.get()) {
-                playerMount.resetFallDistance();
-            }
+            playerMount.resetFallDistance();
+
             return super.use(level, player, usedHand);
         }
 
@@ -169,9 +168,7 @@ public class ReinsItem extends Item {
             return;
         }
 
-        if(RidingUtilsCommonConfigs.reinsNegateFallDamage.get()) {
-            playerMount.resetFallDistance();
-        }
+        playerMount.resetFallDistance();
 
         Vec3 lastMotion = playerMount.getDeltaMovement();
         //Vec3 lookAngle = playerMount.getLookAngle();
