@@ -23,7 +23,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -44,7 +43,7 @@ public class ReinsItem extends Item {
 
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, @NotNull InteractionHand usedHand) {
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if(!player.isPassenger()) {
             return super.use(level, player, usedHand);
         }
@@ -69,12 +68,10 @@ public class ReinsItem extends Item {
         if(!level.isClientSide()) {
             if(random.nextInt(10) == 0) {
                 damageItem(player, itemSelf, damageOnUse);
-                assert playerMount != null;
                 playerMount.playSound(SoundEvents.LEASH_KNOT_BREAK, 0.2f, getVariablePitch(0.5f));
             }
         }
 
-        assert playerMount != null;
         if(playerMount.isInWater()) {
             addWaterMotion(player, playerMount);
         } else {
@@ -85,8 +82,7 @@ public class ReinsItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResult interactLivingEntity(@NotNull ItemStack stack, Player player, @NotNull LivingEntity interactionTarget, @NotNull InteractionHand usedHand) {
-
+    public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity interactionTarget, InteractionHand usedHand) {
         if(!player.level.isClientSide()) {
             if(!player.isPassenger()) {
 
@@ -101,7 +97,6 @@ public class ReinsItem extends Item {
                 if(isAdult) {
                     player.startRiding(interactionTarget);
                     interactionTarget.playSound(SoundEvents.PIG_SADDLE, 1.0f, 1.0f);
-
                 }
             }
         }
@@ -248,7 +243,7 @@ public class ReinsItem extends Item {
 
 
     @Override
-    public void appendHoverText(@NotNull ItemStack pStack, @Nullable Level pLevel, @NotNull List<Component> pTooltipComponents, @NotNull TooltipFlag pIsAdvanced) {
+    public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         if(Screen.hasShiftDown()) {
             pTooltipComponents.add(new TranslatableComponent("tooltip.ridingutils.reins.tooltip.shift"));
         } else {

@@ -22,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -56,8 +55,7 @@ public class RidingWhipItem extends Item {
 
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, @NotNull InteractionHand usedHand) {
-
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if(!player.isPassenger()) {
             return super.use(level, player, usedHand);
         }
@@ -78,7 +76,6 @@ public class RidingWhipItem extends Item {
 
         int chanceRange = maxDamage - currentDamage + 1;
 
-        assert playerMount != null;
         boolean isOnGround = playerMount.isOnGround();
         boolean isInWater = playerMount.isInWater();
 
@@ -216,7 +213,7 @@ public class RidingWhipItem extends Item {
 
 
     @Override
-    public void appendHoverText(@NotNull ItemStack pStack, @Nullable Level pLevel, @NotNull List<Component> pTooltipComponents, @NotNull TooltipFlag pIsAdvanced) {
+    public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         if(Screen.hasShiftDown()) {
             pTooltipComponents.add(new TranslatableComponent("tooltip.ridingutils.riding_whip.tooltip.shift"));
         } else {
