@@ -31,8 +31,8 @@ public class RidingUtilsCommonConfigs {
         ridingWhipControllableSpeedAmplifier = BUILDER.comment("Speed amplifier for default controllable mobs (Defaults to 2)")
                 .defineInRange("Riding Crop Speed Amplifier", 2, 0, 99999999);
 
-        ridingWhipCooldownTicks = BUILDER.comment("How many ticks before the riding crop can be used again? (Defaults to 80 or 4 seconds)")
-                .defineInRange("Riding Crop Cooldown", 80, 1, 99999999);
+        ridingWhipCooldownTicks = BUILDER.comment("How many ticks before the riding crop can be used again? (Defaults to 60 or 3 seconds)")
+                .defineInRange("Riding Crop Cooldown", 60, 1, 99999999);
 
         ridingWhipAnimDamage = BUILDER.comment("Does the riding crop occasionally cause faux damage even when repaired? (Defaults to false)")
                 .define("Riding Crop Fake Damage", false);
