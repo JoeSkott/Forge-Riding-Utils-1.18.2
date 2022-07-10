@@ -16,11 +16,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -29,11 +31,18 @@ import java.util.Random;
 public class RidingWhipItem extends Item {
     Random random = new Random();
 
+
     int cooldownTicks = RidingUtilsCommonConfigs.ridingWhipCooldownTicks.get();
     int damageOnUse = 1;
-    boolean ejectPlayer = false;
 
+    int durationOfEffect = RidingUtilsCommonConfigs.ridingWhipDuration.get();
+
+    int effectAmplifier = RidingUtilsCommonConfigs.ridingWhipControllableSpeedAmplifier.get();
+
+
+    boolean ejectPlayer = false;
     boolean offhandIsReins = false;
+
 
     public RidingWhipItem(Properties pProperties) {
         super(pProperties);
@@ -41,9 +50,13 @@ public class RidingWhipItem extends Item {
 
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, @NotNull InteractionHand usedHand) {
 
         if(!player.isPassenger()) {
+            return super.use(level, player, usedHand);
+        }
+
+        if(player.getVehicle() instanceof Boat) {
             return super.use(level, player, usedHand);
         }
 
@@ -59,31 +72,32 @@ public class RidingWhipItem extends Item {
 
         int chanceRange = maxDamage - currentDamage + 1;
 
+        assert playerMount != null;
         boolean isOnGround = playerMount.isOnGround();
         boolean isInWater = playerMount.isInWater();
 
-        if(isOnGround == true) {
+        if(isOnGround) {
             addMotion(playerMount);
-        } else if(isInWater == true) {
+        } else if(isInWater) {
             addWaterMotion(playerMount);
         } else if(offhandIsReins && RidingUtilsCommonConfigs.reinsNegateFallDamage.get()) {
             playerMount.resetFallDistance();
         }
 
         if(!level.isClientSide()) { //Are we on server?
-            if(isOnGround == true) {
+            if(isOnGround) {
                 activateWhipSound(playerMount);
                 player.getCooldowns().addCooldown(this, cooldownTicks);
                 damageItem(player, itemSelf, damageOnUse);
                 rollForHPDamage(player, playerMount, chanceRange, currentDamage, maxDamage);
             }
 
-            if(ejectPlayer == true && RidingUtilsCommonConfigs.ridingWhipBuck.get() == true) {
+            if(ejectPlayer && RidingUtilsCommonConfigs.ridingWhipBuck.get()) {
                 // Called if bad stuff happened oops
                 playerMount.ejectPassengers();
                 buckPlayer(player, playerMount);
                 ejectPlayer = false;
-            } else if(ejectPlayer == true) {
+            } else if(ejectPlayer) {
                 ejectPlayer = false;
             }
         }
@@ -98,8 +112,7 @@ public class RidingWhipItem extends Item {
 
     private float getVariablePitch(float maxVariance) {
         float pitchAdjust = random.nextFloat(maxVariance) - random.nextFloat(maxVariance);
-        float pitch = 1.2f + pitchAdjust;
-        return pitch;
+        return 1.2f + pitchAdjust;
     }
 
 
@@ -154,7 +167,7 @@ public class RidingWhipItem extends Item {
 
         if(currentDamage < damageCheck || roll != 0) {
             doHurt(playerMount, 0.0f);
-            addSpeed(playerMount, 2, 120);
+            addSpeed(playerMount, effectAmplifier, durationOfEffect);
         } else {
             doRealDamageAndSideEffects(player, playerMount);
         }
@@ -190,15 +203,9 @@ public class RidingWhipItem extends Item {
 
 
                 switch (choose) {
-                    case 0:
-                        playerMount.playSound(SoundEvents.HORSE_ANGRY, 1.0f, pitch);
-                        break;
-                    case 1:
-                        playerMount.playSound(SoundEvents.HORSE_BREATHE, 1.0f, pitch);
-                        break;
-                    case 2:
-                        playerMount.playSound(SoundEvents.HORSE_HURT, 1.0f, pitch);
-                        break;
+                    case 0 -> playerMount.playSound(SoundEvents.HORSE_ANGRY, 1.0f, pitch);
+                    case 1 -> playerMount.playSound(SoundEvents.HORSE_BREATHE, 1.0f, pitch);
+                    case 2 -> playerMount.playSound(SoundEvents.HORSE_HURT, 1.0f, pitch);
                 }
             }
         }
@@ -206,7 +213,7 @@ public class RidingWhipItem extends Item {
 
 
     @Override
-    public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
+    public void appendHoverText(@NotNull ItemStack pStack, @Nullable Level pLevel, @NotNull List<Component> pTooltipComponents, @NotNull TooltipFlag pIsAdvanced) {
         if(Screen.hasShiftDown()) {
             pTooltipComponents.add(new TranslatableComponent("tooltip.ridingutils.riding_whip.tooltip.shift"));
         } else {

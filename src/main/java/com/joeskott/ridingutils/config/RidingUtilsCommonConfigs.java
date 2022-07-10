@@ -8,9 +8,10 @@ public class RidingUtilsCommonConfigs {
     public static final ForgeConfigSpec.ConfigValue<Boolean> reinsNegateFallDamage;
     public static final ForgeConfigSpec.ConfigValue<Integer> reinsDurability;
     public static final ForgeConfigSpec.DoubleValue reinsJumpHeight;
-
     public static final ForgeConfigSpec.DoubleValue reinsRidingWhipSpeedBoost;
     public static final ForgeConfigSpec.ConfigValue<Integer> ridingWhipDurability;
+    public static final ForgeConfigSpec.ConfigValue<Integer> ridingWhipDuration;
+    public static final ForgeConfigSpec.ConfigValue<Integer> ridingWhipControllableSpeedAmplifier;
     public static final ForgeConfigSpec.ConfigValue<Integer> ridingWhipCooldownTicks;
     public static final ForgeConfigSpec.ConfigValue<Boolean> ridingWhipAnimDamage;
     public static final ForgeConfigSpec.ConfigValue<Boolean> ridingWhipBuck;
@@ -35,6 +36,12 @@ public class RidingUtilsCommonConfigs {
 
         ridingWhipDurability = BUILDER.comment("How much durability does the riding crop have? (Defaults to 64)")
                 .defineInRange("Riding Crop Durability", 64, 1, 2048);
+
+        ridingWhipDuration = BUILDER.comment("How long does the speed boost last? (Defaults to 140 ticks or 7 seconds)")
+                .defineInRange("Riding Crop Speed Duration", 140, 1, 99999999);
+
+        ridingWhipControllableSpeedAmplifier = BUILDER.comment("Speed amplifier for default controllable mobs (Defaults to 2)")
+                .defineInRange("Riding Crop Speed Amplifier", 2, 0, 99999999);
 
         ridingWhipCooldownTicks = BUILDER.comment("How many ticks before the riding crop can be used again? (Defaults to 80 or 4 seconds)")
                 .defineInRange("Riding Crop Cooldown", 80, 1, 99999999);

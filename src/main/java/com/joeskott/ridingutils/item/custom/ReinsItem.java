@@ -11,23 +11,23 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.FlyingMob;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class ReinsItem extends Item {
@@ -35,7 +35,6 @@ public class ReinsItem extends Item {
         super(pProperties);
     }
     Random random = new Random();
-
     boolean cancelMotion = false;
     double jumpHeight = RidingUtilsCommonConfigs.reinsJumpHeight.get();
 
@@ -45,7 +44,7 @@ public class ReinsItem extends Item {
 
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, @NotNull InteractionHand usedHand) {
         if(!player.isPassenger()) {
             return super.use(level, player, usedHand);
         }
@@ -56,12 +55,10 @@ public class ReinsItem extends Item {
 
         boolean offhandIsWhip = itemOffhand.is(ModItems.RIDING_WHIP.get());
         boolean offhandIsSelf = itemOffhand.is(this);
+        boolean isBoatEntity = playerMount instanceof Boat;
+        boolean isControllable = playerMount instanceof Saddleable;
 
-        if(!itemSelf.is(ModItems.REINS.get()) || offhandIsWhip || offhandIsSelf) {
-            cancelMotion = true;
-        } else {
-            cancelMotion = false;
-        }
+        cancelMotion = !itemSelf.is(ModItems.REINS.get()) || offhandIsWhip || offhandIsSelf || isBoatEntity || isControllable;
 
         if(playerMount instanceof Horse) { // Don't run code if this is a horse, but still negate fall damage
             if(RidingUtilsCommonConfigs.reinsNegateFallDamage.get()) {
@@ -73,10 +70,12 @@ public class ReinsItem extends Item {
         if(!level.isClientSide()) {
             if(random.nextInt(10) == 0) {
                 damageItem(player, itemSelf, damageOnUse);
+                assert playerMount != null;
                 playerMount.playSound(SoundEvents.LEASH_KNOT_BREAK, 0.2f, getVariablePitch(0.5f));
             }
         }
 
+        assert playerMount != null;
         if(playerMount.isInWater()) {
             addWaterMotion(player, playerMount);
         } else {
@@ -87,7 +86,7 @@ public class ReinsItem extends Item {
     }
 
     @Override
-    public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity interactionTarget, InteractionHand usedHand) {
+    public @NotNull InteractionResult interactLivingEntity(@NotNull ItemStack stack, Player player, @NotNull LivingEntity interactionTarget, @NotNull InteractionHand usedHand) {
 
         if(!player.level.isClientSide()) {
             if(!player.isPassenger()) {
@@ -112,8 +111,7 @@ public class ReinsItem extends Item {
 
     private float getVariablePitch(float maxVariance) {
         float pitchAdjust = random.nextFloat(maxVariance) - random.nextFloat(maxVariance);
-        float pitch = 1.0f + pitchAdjust;
-        return pitch;
+        return 1.0f + pitchAdjust;
     }
 
     private void damageItem(Player player, ItemStack item, int damageAmount) {
@@ -171,7 +169,7 @@ public class ReinsItem extends Item {
             return;
         }
 
-        if(RidingUtilsCommonConfigs.reinsNegateFallDamage.get() == true) {
+        if(RidingUtilsCommonConfigs.reinsNegateFallDamage.get()) {
             playerMount.resetFallDistance();
         }
 
@@ -233,9 +231,7 @@ public class ReinsItem extends Item {
     private boolean hasBeenSpedUp(Entity entity) {
         if(entity instanceof LivingEntity) {
             LivingEntity livingEntity = (LivingEntity) entity;
-            if(livingEntity.hasEffect(MobEffects.MOVEMENT_SPEED)) {
-                return true;
-            }
+            return livingEntity.hasEffect(MobEffects.MOVEMENT_SPEED);
         }
 
         return false;
@@ -249,13 +245,13 @@ public class ReinsItem extends Item {
 
         LivingEntity livingEntity = (LivingEntity) entity;
         if(livingEntity instanceof Enemy) {
-            livingEntity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(0.0d);
+            Objects.requireNonNull(livingEntity.getAttribute(Attributes.ATTACK_DAMAGE)).setBaseValue(0.0d);
         }
     }
 
 
     @Override
-    public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
+    public void appendHoverText(@NotNull ItemStack pStack, @Nullable Level pLevel, @NotNull List<Component> pTooltipComponents, @NotNull TooltipFlag pIsAdvanced) {
         if(Screen.hasShiftDown()) {
             pTooltipComponents.add(new TranslatableComponent("tooltip.ridingutils.reins.tooltip.shift"));
         } else {
