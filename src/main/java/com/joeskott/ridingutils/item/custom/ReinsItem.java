@@ -13,8 +13,10 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
@@ -125,8 +127,10 @@ public class ReinsItem extends Item {
             return;
         }
 
+        boolean climbingMob = (playerMount instanceof Spider);
+
         if(getBlockCollision(playerMount)) {
-            addJumpMotion(player, playerMount);
+            addJumpMotion(player, playerMount, climbingMob);
         }
 
         Vec3 lookAngle = player.getLookAngle();
@@ -135,7 +139,7 @@ public class ReinsItem extends Item {
         boolean offGroundCheck = !playerMount.isOnGround() && lastMotion.y < -0.1f;
         boolean inWaterCheck = playerMount.isInWater();
         boolean flightCheck = (playerMount instanceof FlyingMob);
-        if((offGroundCheck || inWaterCheck) && !flightCheck) {
+        if((offGroundCheck || inWaterCheck) && !flightCheck && !climbingMob) {
             return;
         }
 
@@ -159,9 +163,9 @@ public class ReinsItem extends Item {
         }
     }
 
-    private void addJumpMotion(Player player, Entity playerMount) {
+    private void addJumpMotion(Player player, Entity playerMount, boolean climbingMob) {
         // Method must be executed inside addMotion
-        if(!playerMount.isOnGround() || getBlockCeilingCollision(player)) {
+        if((!playerMount.isOnGround() && !climbingMob) || getBlockCeilingCollision(player)) {
             return;
         }
 
@@ -189,13 +193,16 @@ public class ReinsItem extends Item {
 
         boolean offGroundCheck = (!playerMount.isOnGround() && !playerMount.isInWater());
         boolean flightCheck = (playerMount instanceof FlyingMob);
+        boolean waterMob = (playerMount instanceof WaterAnimal);
         if(offGroundCheck && !flightCheck) {
             return;
         }
         Vec3 lookAngle = player.getLookAngle();
         Vec3 lastMotion = playerMount.getDeltaMovement();
 
-        Vec3 newMotion = new Vec3(lastMotion.x + (lookAngle.x/4), 0.01f, lastMotion.z + (lookAngle.z/4));
+        double boost = (waterMob) ? 0.01d : lastMotion.y;
+
+        Vec3 newMotion = new Vec3(lastMotion.x + (lookAngle.x/4), boost, lastMotion.z + (lookAngle.z/4));
         playerMount.setDeltaMovement(newMotion);
 
         setLookAngle(playerMount, player);
