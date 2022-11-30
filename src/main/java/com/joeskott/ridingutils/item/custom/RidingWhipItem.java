@@ -32,6 +32,7 @@ public class RidingWhipItem extends Item {
     int damageOnUse = 1;
 
     int cooldownTicks = RidingUtilsCommonConfigs.ridingWhipCooldownTicks.get();
+    int waterCooldownTicks = RidingUtilsCommonConfigs.ridingWhipWaterCooldownTicks.get();
 
     int damageCheck = RidingUtilsCommonConfigs.ridingWhipDangerStart.get();
 
@@ -89,9 +90,14 @@ public class RidingWhipItem extends Item {
         }
 
         if(!level.isClientSide()) { //Are we on server?
-            if(isOnGround) {
+            if(isOnGround || isInWater) {
                 activateWhipSound(playerMount);
-                player.getCooldowns().addCooldown(this, cooldownTicks);
+                if (isOnGround) {
+                    player.getCooldowns().addCooldown(this, cooldownTicks);
+                } else {
+                    player.getCooldowns().addCooldown(this, waterCooldownTicks);
+                }
+
                 damageItem(player, itemSelf, damageOnUse);
                 rollForHPDamage(player, playerMount, chanceRange, currentDamage, maxDamage);
             }
@@ -151,7 +157,7 @@ public class RidingWhipItem extends Item {
             return;
         }
         Vec3 lookAngle = playerMount.getLookAngle();
-        Vec3 newMotion = new Vec3(lookAngle.x / 3, 0.05f, lookAngle.z / 3);
+        Vec3 newMotion = new Vec3(lookAngle.x, 0.4f, lookAngle.z);
         playerMount.setDeltaMovement(newMotion);
     }
 
